@@ -1,0 +1,45 @@
+https://www.meetup.com/AzureDublin/events/258160162/
+
+* Azure Function App created
+* Buying domain name through Azure, App service domains
+  * If you delete within a few days, then you don't pay for it
+  * Linked to go daddy, does full dns etc
+
+* Starting with redirect function rather than shortener function
+
+TableStorage used to keep list of urls that can be read from redirect function
+  
+But in Azure functions around redirects so he has to hardcode Azure Functions version to use
+    * How does everyone manage this in prod, generally relying on a platform ?
+
+Azure Advisor Group / Community - Can be joined rather than going through support - Talk to meetup hosts etc who may be in and may be able to help
+
+Creating proxy that links to his Redirect function
+    This allows this
+        https://admsus.azurewebsites.net/abc
+    to proxy to this
+        https://admsus.azurewebsites.net/api/redirect?shortcode=abc
+
+New function CreateShortcut
+    Bug stopped him from creating tableStorawebpage ge link so he manually copy pasted bindings from Redirect function to CreateShortcut function
+
+ETags used with the table storage to avoid concurrency issues in case two runs at the same time try add the same key
+
+CORS blocked initial JS requests to the Function as CORS stops other URLs from calling the server methods
+In Azure, go to CORS settings and set what websites are allowed to call it
+    * In this case he just * so everything can call it
+
+Azure storage for static website hosting
+    * General Purpose V1 Stoarge accounts don't support static website hosting
+    * Just set index document name and error document path
+    * It just creates another blob container called $web which means you don't have to go to full blob url
+    * Then creates a DNS CNAME record to point at the blob storage web url
+        * Can't use root url as that is used by one of the functions, so he set it up on www. subdomain
+
+Setup a timer trigger function just to keep his other functions awake as they will stop after 5 minutes 
+
+
+Then setup another proxy function just to redirect Gets to admsus.org to www.admsus.org
+
+https://admsus.azurewebsites.net
+https://admsus.azurewebsites.net/api/redirect?name=Eoin
